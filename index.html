@@ -6,322 +6,408 @@
 <title>MURChAT — Мессенджер</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+
   body {
     margin: 0; padding: 0;
     font-family: 'Comic Neue', cursive, 'Comic Sans MS', sans-serif;
     background: linear-gradient(to bottom, #fed7ea, #ffffff);
-    color: #444;
-    overflow-x: hidden;
+    color: #333;
   }
   h1, h2 {
     color: #d94e87;
-    text-align: center;
-    margin-bottom: 1rem;
+    margin: 0 0 1rem 0;
     user-select: none;
   }
-  button, a.button {
-    cursor: pointer;
-    border: none;
-    border-radius: 18px;
-    background-color: #fcb7d4;
-    color: white;
-    padding: 0.6rem 1.2rem;
-    font-size: 1.1rem;
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.12);
-    transition: background-color 0.3s, box-shadow 0.3s;
-    user-select: none;
-    margin: 0.5rem 0;
-    display: inline-block;
-    text-decoration: none;
-    text-align: center;
-  }
-  button:hover, a.button:hover {
-    background-color: #f59abc;
-    box-shadow: 4px 4px 10px rgba(0,0,0,0.18);
-  }
-  input, select, textarea {
-    font-family: 'Comic Neue', cursive, 'Comic Sans MS', sans-serif;
-    border: 2px solid #fcb7d4;
-    border-radius: 12px;
-    padding: 0.5rem;
-    font-size: 1rem;
-    width: 100%;
-    box-sizing: border-box;
-    margin-top: 0.3rem;
-    margin-bottom: 1rem;
-    outline-offset: 2px;
-    transition: border-color 0.3s;
-  }
-  input:focus, select:focus, textarea:focus {
-    border-color: #d94e87;
-    outline: none;
-  }
-
   /* Контейнер страниц */
   .page {
-    position: absolute;
-    top: 70px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 90vw;
-    max-width: 400px;
+    display: none;
+    padding: 2rem;
+    box-sizing: border-box;
+    height: 100vh;
+    overflow-y: auto;
     background: #fff0f6;
-    border-radius: 24px;
-    box-shadow: 6px 6px 18px rgba(217, 78, 135, 0.3);
-    padding: 1.5rem 2rem;
-    user-select: none;
-    opacity: 0;
-    pointer-events: none;
+    border-radius: 1rem 0 0 1rem;
+    box-shadow: 4px 4px 12px rgba(217, 78, 135, 0.3);
+    position: relative;
   }
   .page.active {
-    opacity: 1;
-    pointer-events: auto;
-    position: relative;
-    transform: translateX(0);
-    transition: none;
+    display: block;
   }
 
-  /* Анимация входа */
-  .page.entering {
-    animation: slideIn 0.4s forwards;
-  }
-  /* Анимация выхода */
-  .page.leaving {
-    animation: slideOut 0.4s forwards;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateX(100%);
-      pointer-events: none;
-    }
-    to {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-    }
-  }
-  @keyframes slideOut {
-    from {
-      opacity: 1;
-      transform: translateX(0);
-      pointer-events: auto;
-    }
-    to {
-      opacity: 0;
-      transform: translateX(-100%);
-      pointer-events: none;
-    }
-  }
-
-  /* Логотип */
+  /* Логотип котика */
   .logo {
     width: 100px;
     height: 100px;
-    background: url('cat-logo.png') no-repeat center/cover;
     border-radius: 50%;
     margin: 0 auto 1rem;
-    box-shadow: 0 0 12px rgba(217, 78, 135, 0.6);
+    background: url('https://i.imgur.com/NjkfL2j.png') center/cover no-repeat;
+    box-shadow: 0 0 15px #fcb7d4;
   }
 
-  /* Навигационная кнопка */
+  /* Кнопки */
+  button, a.button {
+    cursor: pointer;
+    background-color: #fcb7d4;
+    color: white;
+    border: none;
+    border-radius: 16px;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 700;
+    box-shadow: 2px 2px 8px rgba(252, 183, 212, 0.7);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+    display: inline-block;
+    user-select: none;
+    text-decoration: none;
+    margin: 0.5rem 0;
+  }
+  button:hover, a.button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(252, 183, 212, 0.8);
+  }
+  button:disabled, a.button.disabled {
+    background-color: #f5cbd6;
+    cursor: default;
+    box-shadow: none;
+    transform: none;
+  }
+
+  /* Формы */
+  form {
+    max-width: 320px;
+    margin: 0 auto;
+    text-align: left;
+  }
+  label {
+    font-weight: 700;
+    display: block;
+    margin-top: 1rem;
+  }
+  input[type="text"], input[type="email"], input[type="password"], input[type="tel"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 2px solid #fcb7d4;
+    border-radius: 10px;
+    font-size: 1rem;
+    margin-top: 0.3rem;
+    box-sizing: border-box;
+  }
+  input[type="text"]:focus, input[type="email"]:focus, input[type="password"]:focus, input[type="tel"]:focus {
+    outline: none;
+    border-color: #d94e87;
+    box-shadow: 0 0 8px #d94e87;
+  }
+
+  /* Иконки кнопок телеграма и email */
+  .icon-button {
+    border-radius: 50%;
+    width: 56px;
+    height: 56px;
+    border: 2px solid #fcb7d4;
+    background-color: white;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 50%;
+    margin: 0 1rem;
+    cursor: pointer;
+    transition: box-shadow 0.3s ease;
+  }
+  .icon-button:hover {
+    box-shadow: 0 0 12px #fcb7d4;
+  }
+  .telegram {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/8/82/Telegram_logo.svg');
+  }
+  .email {
+    background-image: url('https://upload.wikimedia.org/wikipedia/commons/4/4e/Mail_%28iOS%29.svg');
+  }
+  .icon-buttons-row {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+
+  /* Навигация */
   #nav-toggle {
     position: fixed;
     top: 50%;
     right: 0;
     transform: translateY(-50%);
     background: rgba(252, 183, 212, 0.6);
-    border-radius: 12px 0 0 12px;
-    padding: 10px 15px;
+    border-radius: 16px 0 0 16px;
+    width: 40px;
+    height: 80px;
     cursor: pointer;
-    box-shadow: 3px 3px 8px rgba(0,0,0,0.12);
-    transition: background 0.3s;
+    box-shadow: 0 0 10px #fcb7d4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
     user-select: none;
-    z-index: 999;
-    font-weight: 700;
-    color: #d94e87;
-    font-size: 1.2rem;
-    letter-spacing: 2px;
+    z-index: 1000;
+    transition: background 0.3s;
   }
   #nav-toggle:hover {
     background: rgba(252, 183, 212, 0.9);
   }
-
   #nav-panel {
     position: fixed;
     top: 50%;
-    right: 60px;
+    right: 40px;
     transform: translateY(-50%);
-    background: #fff0f6cc;
+    background: rgba(255 255 255 / 0.9);
     border-radius: 12px;
-    padding: 1rem 0.5rem;
-    box-shadow: 6px 6px 18px rgba(217, 78, 135, 0.3);
+    box-shadow: 0 0 15px #fcb7d4;
+    padding: 0.5rem;
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 1rem;
     opacity: 0;
     pointer-events: none;
-    transition: opacity 0.3s;
-    z-index: 998;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
   }
   #nav-panel.open {
     opacity: 1;
     pointer-events: auto;
   }
-
-  /* Иконки */
   .nav-icon {
-    width: 44px;
-    height: 44px;
-    background: #fcb7d4;
-    border-radius: 12px;
-    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
-    background-size: 60%;
+    width: 40px;
+    height: 40px;
+    background-size: 70%;
     background-repeat: no-repeat;
     background-position: center;
     cursor: pointer;
-    transition: background-color 0.3s;
+    border-radius: 8px;
+    transition: background-color 0.3s ease;
   }
   .nav-icon:hover {
-    background-color: #f59abc;
+    background-color: #fcb7d4;
   }
-  .nav-icon.contacts {
-    background-image: url('contacts-icon.png');
+  .nav-chats {
+    background-image: url('https://img.icons8.com/ios-filled/50/000000/chat.png');
   }
-  .nav-icon.chats {
-    background-image: url('chats-icon.png');
+  .nav-contacts {
+    background-image: url('https://img.icons8.com/ios-filled/50/000000/contacts.png');
   }
-  .nav-icon.settings {
-    background-image: url('settings-icon.png');
+  .nav-profile {
+    background-image: url('https://img.icons8.com/ios-filled/50/000000/user-male-circle.png');
   }
-  .nav-icon.profile {
-    background-image: url('profile-icon.png');
+  .nav-settings {
+    background-image: url('https://img.icons8.com/ios-filled/50/000000/settings.png');
   }
 
-  /* Формы */
-  form {
-    margin-top: 1rem;
+  /* Анимация страниц */
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(30px); }
+    to { opacity: 1; transform: translateX(0); }
   }
-  label {
-    font-weight: 700;
+  @keyframes slideOut {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(-30px); }
+  }
+  .entering {
+    animation: slideIn 0.4s forwards;
+  }
+  .leaving {
+    animation: slideOut 0.4s forwards;
+  }
+
+  /* Анимация "прыжка" кнопкам */
+  button, a.button {
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+  }
+  button:hover, a.button:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(252, 183, 212, 0.6);
+  }
+
+  /* Плавное появление элементов внутри страниц */
+  .page-content-anim {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: fadeUp 0.6s forwards;
+    animation-delay: 0.3s;
+  }
+  @keyframes fadeUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Стили списков для чатов и контактов */
+  .list {
+    max-width: 360px;
+    margin: 1rem auto 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+  .list-item {
+    background: white;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 0 8px #fcb7d4aa;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  .list-item:hover {
+    background-color: #fed7ea;
+  }
+  .avatar-small {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: url('https://i.imgur.com/NjkfL2j.png') center/cover no-repeat;
   }
 </style>
 </head>
 <body>
 
-<div id="nav-toggle" title="Меню">☰</div>
-<div id="nav-panel" aria-label="Навигация">
-  <div class="nav-icon chats" title="Список чатов" data-page="chats"></div>
-  <div class="nav-icon contacts" title="Контакты" data-page="contacts"></div>
-  <div class="nav-icon profile" title="Профиль" data-page="profile"></div>
-  <div class="nav-icon settings" title="Настройки" data-page="settings"></div>
+<!-- Навигация -->
+<div id="nav-toggle" title="Меню ☰">☰</div>
+<div id="nav-panel">
+  <div class="nav-icon nav-chats" data-page="chats" title="Список чатов"></div>
+  <div class="nav-icon nav-contacts" data-page="contacts" title="Контакты"></div>
+  <div class="nav-icon nav-profile" data-page="profile" title="Профиль"></div>
+  <div class="nav-icon nav-settings" data-page="settings" title="Настройки"></div>
 </div>
 
+<!-- Страницы -->
 <section id="page-login" class="page active" aria-label="Страница входа">
-  <div class="logo"></div>
-  <h1>MURChAT</h1>
-  <form id="login-form">
-    <label for="login-email">Email</label>
-    <input type="email" id="login-email" placeholder="Введите email" required />
-    <label for="login-password">Пароль</label>
-    <input type="password" id="login-password" placeholder="Введите пароль" required />
-    <button type="submit">Вход</button>
-  </form>
-  <button id="to-register-btn">Регистрация</button>
-  <button id="to-forgot-btn">Не помню пароль</button>
+  <div class="page-content-anim">
+    <div class="logo"></div>
+    <h1>MURChAT</h1>
+
+    <div class="icon-buttons-row">
+      <button class="icon-button telegram" title="Войти через Telegram" id="login-telegram-btn"></button>
+      <button class="icon-button email" title="Войти через Email" id="login-email-btn"></button>
+    </div>
+
+    <form id="login-form">
+      <label for="login-username">Имя пользователя или email</label>
+      <input type="text" id="login-username" required />
+
+      <label for="login-password">Пароль</label>
+      <input type="password" id="login-password" required />
+
+      <button type="submit">Войти</button>
+    </form>
+
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#" id="go-to-register" class="button">Регистрация</a> |
+      <a href="#" id="go-to-forgot" class="button">Забыли пароль?</a>
+    </div>
+  </div>
 </section>
 
 <section id="page-register" class="page" aria-label="Страница регистрации">
-  <div class="logo"></div>
-  <h2>Регистрация</h2>
-  <form id="register-form">
-    <label for="reg-name">Имя</label>
-    <input type="text" id="reg-name" placeholder="Ваше имя" required />
-    <label for="reg-email">Email</label>
-    <input type="email" id="reg-email" placeholder="Введите email" required />
-    <label for="reg-password">Пароль</label>
-    <input type="password" id="reg-password" placeholder="Придумайте пароль" required />
-    <button type="submit">Зарегистрироваться</button>
-  </form>
-  <button id="to-login-from-register">Назад ко входу</button>
+  <div class="page-content-anim">
+    <h1>Регистрация</h1>
+    <form id="register-form">
+      <label for="reg-username">Имя пользователя</label>
+      <input type="text" id="reg-username" required />
+
+      <label for="reg-email">Email</label>
+      <input type="email" id="reg-email" required />
+
+      <label for="reg-password">Пароль</label>
+      <input type="password" id="reg-password" required />
+
+      <button type="submit">Зарегистрироваться</button>
+    </form>
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#" id="go-to-login-from-register" class="button">Уже есть аккаунт?</a>
+    </div>
+  </div>
 </section>
 
 <section id="page-forgot" class="page" aria-label="Страница восстановления пароля">
-  <div class="logo"></div>
-  <h2>Восстановление пароля</h2>
-  <form id="forgot-form">
-    <label for="forgot-email">Введите ваш Email</label>
-    <input type="email" id="forgot-email" placeholder="Email для восстановления" required />
-    <button type="submit">Отправить ссылку</button>
-  </form>
-  <button id="to-login-from-forgot">Назад ко входу</button>
+  <div class="page-content-anim">
+    <h1>Восстановление пароля</h1>
+    <form id="forgot-form">
+      <label for="forgot-email">Email для восстановления</label>
+      <input type="email" id="forgot-email" required />
+
+      <button type="submit">Отправить письмо</button>
+    </form>
+    <div style="text-align:center; margin-top:1rem;">
+      <a href="#" id="go-to-login-from-forgot" class="button">Вернуться к входу</a>
+    </div>
+  </div>
 </section>
 
 <section id="page-chats" class="page" aria-label="Список чатов">
-  <h2>Чаты</h2>
-  <p>Здесь будет список чатов и переписка.</p>
-  <button id="to-login-from-chats">Выйти</button>
+  <div class="page-content-anim">
+    <h1>Чаты</h1>
+    <ul class="list" id="chat-list">
+      <li class="list-item"><div class="avatar-small"></div> Чат с Наташей</li>
+      <li class="list-item"><div class="avatar-small"></div> Котики и Мурчалки</li>
+      <li class="list-item"><div class="avatar-small"></div> Секретный чат</li>
+    </ul>
+  </div>
 </section>
 
 <section id="page-contacts" class="page" aria-label="Контакты">
-  <h2>Контакты</h2>
-  <p>Здесь будут контакты.</p>
-  <button id="to-login-from-contacts">Выйти</button>
+  <div class="page-content-anim">
+    <h1>Контакты</h1>
+    <ul class="list" id="contacts-list">
+      <li class="list-item"><div class="avatar-small"></div> Мурчащий Кот</li>
+      <li class="list-item"><div class="avatar-small"></div> Салли (котик)</li>
+      <li class="list-item"><div class="avatar-small"></div> Коми (кошка)</li>
+    </ul>
+  </div>
 </section>
 
-<section id="page-profile" class="page" aria-label="Профиль пользователя">
-  <h2>Профиль</h2>
-  <p>Информация о пользователе.</p>
-  <button id="to-login-from-profile">Выйти</button>
+<section id="page-profile" class="page" aria-label="Профиль">
+  <div class="page-content-anim">
+    <h1>Профиль</h1>
+    <p>Здесь будет информация о пользователе.</p>
+  </div>
 </section>
 
 <section id="page-settings" class="page" aria-label="Настройки">
-  <h2>Настройки</h2>
-  <p>Здесь можно изменить настройки приложения.</p>
-  <button id="to-login-from-settings">Выйти</button>
+  <div class="page-content-anim">
+    <h1>Настройки</h1>
+    <p>Настройки мессенджера.</p>
+  </div>
 </section>
 
 <script>
-  const navToggle = document.getElementById('nav-toggle');
-  const navPanel = document.getElementById('nav-panel');
-  const pages = document.querySelectorAll('.page');
   let currentPageId = 'page-login';
 
-  navToggle.addEventListener('click', () => {
-    navPanel.classList.toggle('open');
-  });
-
-  navPanel.addEventListener('click', e => {
-    if (e.target.classList.contains('nav-icon')) {
-      const newPageId = 'page-' + e.target.dataset.page;
-      changePage(newPageId);
-      navPanel.classList.remove('open');
-    }
-  });
-
-  // Функция переключения страницы с анимацией
+  // Навигация по страницам
   function changePage(newPageId) {
     if (newPageId === currentPageId) return;
 
     const currentPage = document.getElementById(currentPageId);
     const newPage = document.getElementById(newPageId);
 
-    // Добавляем анимацию ухода для текущей страницы
+    // Анимация скрытия текущей страницы
     currentPage.classList.add('leaving');
     currentPage.classList.remove('active');
 
-    // Когда уход закончится, скрываем страницу
     currentPage.addEventListener('animationend', function handler() {
       currentPage.classList.remove('leaving');
       currentPage.style.pointerEvents = 'none';
       currentPage.removeEventListener('animationend', handler);
     });
 
-    // Подготавливаем новую страницу для анимации входа
+    // Показ новой страницы
     newPage.style.pointerEvents = 'auto';
     newPage.classList.add('entering');
     newPage.classList.add('active');
+
+    // Анимация контента внутри страницы
+    const content = newPage.querySelector('.page-content-anim');
+    if (content) {
+      content.classList.remove('page-content-anim');
+      void content.offsetWidth; // перерисовка для перезапуска анимации
+      content.classList.add('page-content-anim');
+    }
 
     newPage.addEventListener('animationend', function handler() {
       newPage.classList.remove('entering');
@@ -331,32 +417,60 @@
     currentPageId = newPageId;
   }
 
-  // Кнопки перехода
-  document.getElementById('to-register-btn').onclick = () => changePage('page-register');
-  document.getElementById('to-forgot-btn').onclick = () => changePage('page-forgot');
-  document.getElementById('to-login-from-register').onclick = () => changePage('page-login');
-  document.getElementById('to-login-from-forgot').onclick = () => changePage('page-login');
-
-  ['chats', 'contacts', 'profile', 'settings'].forEach(page => {
-    document.getElementById(`to-login-from-${page}`).onclick = () => changePage('page-login');
+  // Переключение навигационной панели
+  const navToggle = document.getElementById('nav-toggle');
+  const navPanel = document.getElementById('nav-panel');
+  navToggle.addEventListener('click', () => {
+    navPanel.classList.toggle('open');
   });
 
-  // Обработка форм — пример
-  document.getElementById('login-form').onsubmit = e => {
+  // Клики по кнопкам меню
+  navPanel.querySelectorAll('.nav-icon').forEach(icon => {
+    icon.addEventListener('click', () => {
+      changePage('page-' + icon.dataset.page);
+      navPanel.classList.remove('open');
+    });
+  });
+
+  // Ссылки на регистрацию и восстановление
+  document.getElementById('go-to-register').addEventListener('click', e => {
     e.preventDefault();
-    alert('Вход выполнен (симуляция)');
+    changePage('page-register');
+  });
+  document.getElementById('go-to-forgot').addEventListener('click', e => {
+    e.preventDefault();
+    changePage('page-forgot');
+  });
+  document.getElementById('go-to-login-from-register').addEventListener('click', e => {
+    e.preventDefault();
+    changePage('page-login');
+  });
+  document.getElementById('go-to-login-from-forgot').addEventListener('click', e => {
+    e.preventDefault();
+    changePage('page-login');
+  });
+
+  // Простейшая обработка форм (заглушки)
+  document.getElementById('login-form').addEventListener('submit', e => {
+    e.preventDefault();
+    alert('Вход выполнен!');
     changePage('page-chats');
-  };
-  document.getElementById('register-form').onsubmit = e => {
+  });
+  document.getElementById('register-form').addEventListener('submit', e => {
     e.preventDefault();
-    alert('Регистрация прошла успешно (симуляция)');
+    alert('Регистрация прошла успешно!');
     changePage('page-login');
-  };
-  document.getElementById('forgot-form').onsubmit = e => {
+  });
+  document.getElementById('forgot-form').addEventListener('submit', e => {
     e.preventDefault();
-    alert('Ссылка для восстановления отправлена (симуляция)');
+    alert('Письмо для восстановления отправлено!');
     changePage('page-login');
-  };
+  });
+
+  // Иконки соцвхода — заглушки
+  document.getElementById('login-telegram-btn').addEventListener('click', () => alert('Войти через Telegram'));
+  document.getElementById('login-email-btn').addEventListener('click', () => alert('Войти через Email'));
+
 </script>
 </body>
 </html>
