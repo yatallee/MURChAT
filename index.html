@@ -1,126 +1,362 @@
-<!-- register.html — Регистрация -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <title>MURChAT — Регистрация</title>
-  <link rel="stylesheet" href="style.css" />
-  <style>
-    body {
-      font-family: 'Comic Sans MS', cursive;
-      background: linear-gradient(to bottom, #fed7ea, #ffffff);
-      text-align: center;
-      padding: 2rem;
-      margin: 0;
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MURChAT — Мессенджер</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Comic+Neue:wght@700&display=swap');
+  body {
+    margin: 0; padding: 0;
+    font-family: 'Comic Neue', cursive, 'Comic Sans MS', sans-serif;
+    background: linear-gradient(to bottom, #fed7ea, #ffffff);
+    color: #444;
+    overflow-x: hidden;
+  }
+  h1, h2 {
+    color: #d94e87;
+    text-align: center;
+    margin-bottom: 1rem;
+    user-select: none;
+  }
+  button, a.button {
+    cursor: pointer;
+    border: none;
+    border-radius: 18px;
+    background-color: #fcb7d4;
+    color: white;
+    padding: 0.6rem 1.2rem;
+    font-size: 1.1rem;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.12);
+    transition: background-color 0.3s, box-shadow 0.3s;
+    user-select: none;
+    margin: 0.5rem 0;
+    display: inline-block;
+    text-decoration: none;
+    text-align: center;
+  }
+  button:hover, a.button:hover {
+    background-color: #f59abc;
+    box-shadow: 4px 4px 10px rgba(0,0,0,0.18);
+  }
+  input, select, textarea {
+    font-family: 'Comic Neue', cursive, 'Comic Sans MS', sans-serif;
+    border: 2px solid #fcb7d4;
+    border-radius: 12px;
+    padding: 0.5rem;
+    font-size: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    margin-top: 0.3rem;
+    margin-bottom: 1rem;
+    outline-offset: 2px;
+    transition: border-color 0.3s;
+  }
+  input:focus, select:focus, textarea:focus {
+    border-color: #d94e87;
+    outline: none;
+  }
 
-    .logo {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: url('cat-logo.png') center/cover no-repeat;
-      display: inline-block;
-      margin-bottom: 1rem;
-      border: 3px solid white;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
+  /* Контейнер страниц */
+  .page {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90vw;
+    max-width: 400px;
+    background: #fff0f6;
+    border-radius: 24px;
+    box-shadow: 6px 6px 18px rgba(217, 78, 135, 0.3);
+    padding: 1.5rem 2rem;
+    user-select: none;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .page.active {
+    opacity: 1;
+    pointer-events: auto;
+    position: relative;
+    transform: translateX(0);
+    transition: none;
+  }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 1.5rem;
-      color: #d94e87;
-    }
+  /* Анимация входа */
+  .page.entering {
+    animation: slideIn 0.4s forwards;
+  }
+  /* Анимация выхода */
+  .page.leaving {
+    animation: slideOut 0.4s forwards;
+  }
 
-    .button {
-      display: block;
-      width: 200px;
-      margin: 0.5rem auto;
-      padding: 0.75rem;
-      border-radius: 16px;
-      background-color: #fcb7d4;
-      color: white;
-      text-decoration: none;
-      font-size: 1rem;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      transition: background 0.3s;
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+      pointer-events: none;
     }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+  }
+  @keyframes slideOut {
+    from {
+      opacity: 1;
+      transform: translateX(0);
+      pointer-events: auto;
+    }
+    to {
+      opacity: 0;
+      transform: translateX(-100%);
+      pointer-events: none;
+    }
+  }
 
-    .button:hover {
-      background-color: #f59abc;
-    }
+  /* Логотип */
+  .logo {
+    width: 100px;
+    height: 100px;
+    background: url('cat-logo.png') no-repeat center/cover;
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    box-shadow: 0 0 12px rgba(217, 78, 135, 0.6);
+  }
 
-    .input-group {
-      margin: 1rem auto;
-      max-width: 300px;
-      text-align: left;
-    }
+  /* Навигационная кнопка */
+  #nav-toggle {
+    position: fixed;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    background: rgba(252, 183, 212, 0.6);
+    border-radius: 12px 0 0 12px;
+    padding: 10px 15px;
+    cursor: pointer;
+    box-shadow: 3px 3px 8px rgba(0,0,0,0.12);
+    transition: background 0.3s;
+    user-select: none;
+    z-index: 999;
+    font-weight: 700;
+    color: #d94e87;
+    font-size: 1.2rem;
+    letter-spacing: 2px;
+  }
+  #nav-toggle:hover {
+    background: rgba(252, 183, 212, 0.9);
+  }
 
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.25rem;
-      border: 2px solid #fcb7d4;
-      border-radius: 8px;
-      font-size: 1rem;
-    }
+  #nav-panel {
+    position: fixed;
+    top: 50%;
+    right: 60px;
+    transform: translateY(-50%);
+    background: #fff0f6cc;
+    border-radius: 12px;
+    padding: 1rem 0.5rem;
+    box-shadow: 6px 6px 18px rgba(217, 78, 135, 0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+    z-index: 998;
+  }
+  #nav-panel.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
 
-    .option-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
+  /* Иконки */
+  .nav-icon {
+    width: 44px;
+    height: 44px;
+    background: #fcb7d4;
+    border-radius: 12px;
+    box-shadow: 2px 2px 8px rgba(0,0,0,0.1);
+    background-size: 60%;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .nav-icon:hover {
+    background-color: #f59abc;
+  }
+  .nav-icon.contacts {
+    background-image: url('contacts-icon.png');
+  }
+  .nav-icon.chats {
+    background-image: url('chats-icon.png');
+  }
+  .nav-icon.settings {
+    background-image: url('settings-icon.png');
+  }
+  .nav-icon.profile {
+    background-image: url('profile-icon.png');
+  }
 
-    .icon-button {
-      background-color: white;
-      border: 2px solid #fcb7d4;
-      border-radius: 50%;
-      width: 60px;
-      height: 60px;
-      background-size: 60%;
-      background-repeat: no-repeat;
-      background-position: center;
-      cursor: pointer;
-      transition: box-shadow 0.3s;
-    }
-
-    .icon-button:hover {
-      box-shadow: 0 0 10px #fcb7d4;
-    }
-
-    .telegram {
-      background-image: url('telegram-icon.png');
-    }
-
-    .email {
-      background-image: url('email-icon.png');
-    }
-  </style>
+  /* Формы */
+  form {
+    margin-top: 1rem;
+  }
+  label {
+    font-weight: 700;
+  }
+</style>
 </head>
 <body>
+
+<div id="nav-toggle" title="Меню">☰</div>
+<div id="nav-panel" aria-label="Навигация">
+  <div class="nav-icon chats" title="Список чатов" data-page="chats"></div>
+  <div class="nav-icon contacts" title="Контакты" data-page="contacts"></div>
+  <div class="nav-icon profile" title="Профиль" data-page="profile"></div>
+  <div class="nav-icon settings" title="Настройки" data-page="settings"></div>
+</div>
+
+<section id="page-login" class="page active" aria-label="Страница входа">
   <div class="logo"></div>
-  <h1>Регистрация в MURChAT</h1>
+  <h1>MURChAT</h1>
+  <form id="login-form">
+    <label for="login-email">Email</label>
+    <input type="email" id="login-email" placeholder="Введите email" required />
+    <label for="login-password">Пароль</label>
+    <input type="password" id="login-password" placeholder="Введите пароль" required />
+    <button type="submit">Вход</button>
+  </form>
+  <button id="to-register-btn">Регистрация</button>
+  <button id="to-forgot-btn">Не помню пароль</button>
+</section>
 
-  <div class="option-buttons">
-    <button class="icon-button telegram" title="Зарегистрироваться через Telegram"></button>
-    <button class="icon-button email" title="Зарегистрироваться через Email"></button>
-  </div>
+<section id="page-register" class="page" aria-label="Страница регистрации">
+  <div class="logo"></div>
+  <h2>Регистрация</h2>
+  <form id="register-form">
+    <label for="reg-name">Имя</label>
+    <input type="text" id="reg-name" placeholder="Ваше имя" required />
+    <label for="reg-email">Email</label>
+    <input type="email" id="reg-email" placeholder="Введите email" required />
+    <label for="reg-password">Пароль</label>
+    <input type="password" id="reg-password" placeholder="Придумайте пароль" required />
+    <button type="submit">Зарегистрироваться</button>
+  </form>
+  <button id="to-login-from-register">Назад ко входу</button>
+</section>
 
-  <div class="input-group">
-    <label for="name">Имя</label>
-    <input type="text" id="name" placeholder="Ваше имя">
-  </div>
-  <div class="input-group">
-    <label for="email">Email</label>
-    <input type="email" id="email" placeholder="Введите email">
-  </div>
-  <div class="input-group">
-    <label for="password">Пароль</label>
-    <input type="password" id="password" placeholder="Придумайте пароль">
-  </div>
+<section id="page-forgot" class="page" aria-label="Страница восстановления пароля">
+  <div class="logo"></div>
+  <h2>Восстановление пароля</h2>
+  <form id="forgot-form">
+    <label for="forgot-email">Введите ваш Email</label>
+    <input type="email" id="forgot-email" placeholder="Email для восстановления" required />
+    <button type="submit">Отправить ссылку</button>
+  </form>
+  <button id="to-login-from-forgot">Назад ко входу</button>
+</section>
 
-  <a href="#" class="button">Регистрация</a>
-  <a href="index.html" class="button" style="background-color:#eee; color:#666;">Назад ко входу</a>
-  <a href="forgot.html" class="button" style="background-color:#ddd; color:#444;">Не помню пароль</a>
+<section id="page-chats" class="page" aria-label="Список чатов">
+  <h2>Чаты</h2>
+  <p>Здесь будет список чатов и переписка.</p>
+  <button id="to-login-from-chats">Выйти</button>
+</section>
+
+<section id="page-contacts" class="page" aria-label="Контакты">
+  <h2>Контакты</h2>
+  <p>Здесь будут контакты.</p>
+  <button id="to-login-from-contacts">Выйти</button>
+</section>
+
+<section id="page-profile" class="page" aria-label="Профиль пользователя">
+  <h2>Профиль</h2>
+  <p>Информация о пользователе.</p>
+  <button id="to-login-from-profile">Выйти</button>
+</section>
+
+<section id="page-settings" class="page" aria-label="Настройки">
+  <h2>Настройки</h2>
+  <p>Здесь можно изменить настройки приложения.</p>
+  <button id="to-login-from-settings">Выйти</button>
+</section>
+
+<script>
+  const navToggle = document.getElementById('nav-toggle');
+  const navPanel = document.getElementById('nav-panel');
+  const pages = document.querySelectorAll('.page');
+  let currentPageId = 'page-login';
+
+  navToggle.addEventListener('click', () => {
+    navPanel.classList.toggle('open');
+  });
+
+  navPanel.addEventListener('click', e => {
+    if (e.target.classList.contains('nav-icon')) {
+      const newPageId = 'page-' + e.target.dataset.page;
+      changePage(newPageId);
+      navPanel.classList.remove('open');
+    }
+  });
+
+  // Функция переключения страницы с анимацией
+  function changePage(newPageId) {
+    if (newPageId === currentPageId) return;
+
+    const currentPage = document.getElementById(currentPageId);
+    const newPage = document.getElementById(newPageId);
+
+    // Добавляем анимацию ухода для текущей страницы
+    currentPage.classList.add('leaving');
+    currentPage.classList.remove('active');
+
+    // Когда уход закончится, скрываем страницу
+    currentPage.addEventListener('animationend', function handler() {
+      currentPage.classList.remove('leaving');
+      currentPage.style.pointerEvents = 'none';
+      currentPage.removeEventListener('animationend', handler);
+    });
+
+    // Подготавливаем новую страницу для анимации входа
+    newPage.style.pointerEvents = 'auto';
+    newPage.classList.add('entering');
+    newPage.classList.add('active');
+
+    newPage.addEventListener('animationend', function handler() {
+      newPage.classList.remove('entering');
+      newPage.removeEventListener('animationend', handler);
+    });
+
+    currentPageId = newPageId;
+  }
+
+  // Кнопки перехода
+  document.getElementById('to-register-btn').onclick = () => changePage('page-register');
+  document.getElementById('to-forgot-btn').onclick = () => changePage('page-forgot');
+  document.getElementById('to-login-from-register').onclick = () => changePage('page-login');
+  document.getElementById('to-login-from-forgot').onclick = () => changePage('page-login');
+
+  ['chats', 'contacts', 'profile', 'settings'].forEach(page => {
+    document.getElementById(`to-login-from-${page}`).onclick = () => changePage('page-login');
+  });
+
+  // Обработка форм — пример
+  document.getElementById('login-form').onsubmit = e => {
+    e.preventDefault();
+    alert('Вход выполнен (симуляция)');
+    changePage('page-chats');
+  };
+  document.getElementById('register-form').onsubmit = e => {
+    e.preventDefault();
+    alert('Регистрация прошла успешно (симуляция)');
+    changePage('page-login');
+  };
+  document.getElementById('forgot-form').onsubmit = e => {
+    e.preventDefault();
+    alert('Ссылка для восстановления отправлена (симуляция)');
+    changePage('page-login');
+  };
+</script>
 </body>
 </html>
