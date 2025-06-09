@@ -1,131 +1,127 @@
+<!-- Структура MURChAT страниц: минимальные шаблоны -->
+
+<!-- index.html — Вход -->
 <!DOCTYPE html>
 <html lang="ru">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MURChAT — Вход</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Comic Sans MS', cursive;
-      background: linear-gradient(to bottom, #fed7ea, #ffffff);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    .container {
-      background: white;
-      border: 4px dashed #faa4c3;
-      border-radius: 20px;
-      padding: 2rem;
-      width: 320px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-      text-align: center;
-    }
-
-    .logo {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      background: url('https://i.imgur.com/6kQW1fN.png') center/cover no-repeat; /* Заменить на твой логотип */
-      margin: 0 auto 1rem;
-    }
-
-    h1 {
-      margin-bottom: 1rem;
-      color: #e75480;
-    }
-
-    .button {
-      display: block;
-      width: 100%;
-      padding: 0.75rem;
-      margin: 0.5rem 0;
-      background-color: #fcb7d4;
-      border: none;
-      border-radius: 12px;
-      box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    .button:hover {
-      background-color: #f59abc;
-    }
-
-    .input-group {
-      display: none;
-      margin-top: 1rem;
-      text-align: left;
-    }
-
-    .input-group.active {
-      display: block;
-    }
-
-    label {
-      font-size: 0.9rem;
-      color: #555;
-    }
-
-    input {
-      width: 100%;
-      padding: 0.5rem;
-      margin-top: 0.2rem;
-      margin-bottom: 1rem;
-      border: 2px solid #faa4c3;
-      border-radius: 8px;
-      outline: none;
-    }
-
-    .link {
-      font-size: 0.85rem;
-      color: #999;
-      text-decoration: underline;
-      cursor: pointer;
-      margin-top: 0.5rem;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="container">
-    <div class="logo"></div>
-    <h1>MURChAT</h1>
-
-    <button class="button" onclick="toggleLogin('email')">Вход по Email</button>
-    <button class="button" onclick="toggleLogin('telegram')">Вход через Telegram</button>
-
-    <div id="email-form" class="input-group">
-      <label>Email</label>
-      <input type="email" placeholder="Введите email" />
-      <label>Пароль</label>
-      <input type="password" placeholder="Введите пароль" />
-    </div>
-
-    <div id="telegram-form" class="input-group">
-      <label>Номер телефона</label>
-      <input type="tel" placeholder="+7..." />
-    </div>
-
-    <button class="button">Войти</button>
-    <button class="button">Регистрация</button>
-    <div class="link">Не помню пароль</div>
-  </div>
-
-  <script>
-    function toggleLogin(method) {
-      document.getElementById('email-form').classList.remove('active');
-      document.getElementById('telegram-form').classList.remove('active');
-
-      if (method === 'email') {
-        document.getElementById('email-form').classList.add('active');
-      } else {
-        document.getElementById('telegram-form').classList.add('active');
-      }
-    }
-  </script>
+  <h1>Вход в MURChAT</h1>
+  <a href="register.html">Регистрация</a>
+  <a href="chats.html">Перейти к чатам</a>
 </body>
 </html>
+
+<!-- register.html — Регистрация -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Регистрация</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Регистрация в MURChAT</h1>
+  <a href="index.html">Уже есть аккаунт</a>
+</body>
+</html>
+
+<!-- chats.html — Список чатов -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Чаты</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Список чатов</h1>
+  <a href="chat.html">Открыть чат</a>
+  <a href="contacts.html">Контакты</a>
+  <a href="settings.html">Настройки</a>
+</body>
+</html>
+
+<!-- chat.html — Один чат -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Чат</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Чат с другом</h1>
+  <a href="profile.html">Профиль друга</a>
+  <a href="chats.html">Назад к чатам</a>
+</body>
+</html>
+
+<!-- contacts.html — Контакты -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Контакты</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Контакты</h1>
+  <a href="profile.html">Открыть контакт</a>
+</body>
+</html>
+
+<!-- profile.html — Профиль -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Профиль</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Профиль пользователя</h1>
+  <a href="chat.html">Написать сообщение</a>
+</body>
+</html>
+
+<!-- settings.html — Настройки -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>MURChAT — Настройки</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1>Настройки</h1>
+  <a href="profile.html">Профиль</a>
+  <a href="chats.html">Назад</a>
+</body>
+</html>
+
+<!-- style.css (создай файл отдельно) -->
+/* Пример базового стиля */
+body {
+  font-family: 'Comic Sans MS', cursive;
+  background: linear-gradient(to bottom, #fed7ea, #ffffff);
+  text-align: center;
+  padding: 2rem;
+}
+a {
+  display: inline-block;
+  margin: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #fcb7d4;
+  border-radius: 12px;
+  text-decoration: none;
+  color: white;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
+  transition: background 0.3s;
+}
+a:hover {
+  background: #f59abc;
+}
