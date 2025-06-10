@@ -1,180 +1,1139 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MURChAT</title>
-  <style>
-    /* Основные стили */
-    body {
-      font-family: 'Arial', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #ffe5d9, #ffc2a1);
-      color: #5a3e36;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KittyChat - Милый чат с котиками</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <!-- Font Awesome для иконок -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-light: #FFDAB9;
+            --primary: #FFB6C1;
+            --primary-dark: #FFA07A;
+            --secondary: #FFE4E1;
+            --text: #5D4037;
+            --text-light: #8D6E63;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
 
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
-      background: linear-gradient(135deg, #ff9a8b, #ff6a88);
-      color: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
+        [data-theme="dark"] {
+            --primary-light: #4A3A2F;
+            --primary: #5D4037;
+            --primary-dark: #3E2723;
+            --secondary: #8D6E63;
+            --text: #FFE4E1;
+            --text-light: #D7CCC8;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
 
-    header img {
-      height: 50px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Nunito', sans-serif;
+        }
 
-    nav {
-      display: flex;
-      gap: 15px;
-    }
+        body {
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            color: var(--text);
+            min-height: 100vh;
+            transition: var(--transition);
+        }
 
-    nav a {
-      text-decoration: none;
-      color: white;
-      font-weight: bold;
-      transition: transform 0.3s;
-    }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-    nav a:hover {
-      transform: scale(1.1);
-    }
+        /* Навигация */
+        nav {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            padding: 15px 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
 
-    .container {
-      padding: 20px;
-    }
+        .logo {
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+        }
 
-    .hidden {
-      display: none;
-    }
+        .logo img {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            border-radius: 50%;
+        }
 
-    button {
-      background: linear-gradient(135deg, #ff9a8b, #ff6a88);
-      border: none;
-      color: white;
-      padding: 10px 20px;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
 
-    button:hover {
-      background: linear-gradient(135deg, #ff6a88, #ff9a8b);
-    }
+        .nav-links li {
+            margin-left: 20px;
+        }
 
-    input {
-      padding: 10px;
-      margin: 5px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      width: 100%;
-    }
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            padding: 8px 15px;
+            border-radius: 10px;
+            transition: var(--transition);
+        }
 
-    .emoji-picker {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
+        .nav-links a:hover, .nav-links a.active {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
 
-    .emoji-picker span {
-      cursor: pointer;
-      font-size: 20px;
-    }
+        /* Общие стили для страниц */
+        .page {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            min-height: 70vh;
+            transition: var(--transition);
+            background-color: var(--secondary);
+        }
 
-    .chat-message {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 10px 0;
-    }
+        .page.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
 
-    .chat-message img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-    }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .chat-message .message {
-      background: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-  </style>
+        h1 {
+            color: var(--primary-dark);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Страница входа */
+        .auth-container {
+            max-width: 400px;
+            margin: 50px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            transition: var(--transition);
+            background: linear-gradient(to bottom right, white, var(--secondary));
+        }
+
+        .auth-container h2 {
+            margin-bottom: 20px;
+            color: var(--primary-dark);
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .auth-form input {
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px rgba(255, 160, 122, 0.3);
+        }
+
+        .auth-btn {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 15px;
+            transition: var(--transition);
+        }
+
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .social-auth {
+            margin-top: 20px;
+        }
+
+        .social-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .google-btn {
+            background-color: white;
+            color: #5D4037;
+            border: 1px solid #ddd;
+        }
+
+        .google-btn:hover {
+            background-color: #f1f1f1;
+        }
+
+        .email-btn {
+            background: linear-gradient(to right, #FFA07A, #FF8C66);
+            color: white;
+            border: none;
+        }
+
+        .email-btn:hover {
+            background: linear-gradient(to right, #FF8C66, #FF7F50);
+        }
+
+        .social-btn i {
+            margin-right: 10px;
+            font-size: 1.2rem;
+        }
+
+        .auth-toggle {
+            margin-top: 20px;
+            color: var(--text-light);
+        }
+
+        .auth-toggle a {
+            color: var(--primary-dark);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-toggle a:hover {
+            text-decoration: underline;
+        }
+
+        /* Страница чатов */
+        .chat-container {
+            display: flex;
+            height: 65vh;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .chat-sidebar {
+            width: 30%;
+            background: linear-gradient(to bottom, var(--primary-light), var(--secondary));
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        .chat-list {
+            list-style: none;
+        }
+
+        .chat-item {
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-item:hover {
+            background-color: rgba(255, 255, 255, 0.5);
+        }
+
+        .chat-item.active {
+            background-color: white;
+            box-shadow: var(--shadow);
+        }
+
+        .chat-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            object-fit: cover;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .chat-info {
+            flex: 1;
+        }
+
+        .chat-name {
+            font-weight: 600;
+            margin-bottom: 3px;
+        }
+
+        .chat-preview {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .chat-main {
+            width: 70%;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+        }
+
+        .chat-header {
+            padding: 15px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+
+        .chat-header-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            background-color: rgba(255, 214, 181, 0.2);
+        }
+
+        .message {
+            margin-bottom: 15px;
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+            animation: messageIn 0.3s ease;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-in {
+            background-color: var(--primary-light);
+            border-bottom-left-radius: 5px;
+            margin-right: auto;
+        }
+
+        .message-out {
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border-bottom-right-radius: 5px;
+            margin-left: auto;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .message-out .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background-color: white;
+        }
+
+        .chat-input textarea {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--primary);
+            border-radius: 20px;
+            resize: none;
+            font-size: 1rem;
+            max-height: 100px;
+            transition: var(--transition);
+        }
+
+        .chat-input textarea:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px rgba(255, 160, 122, 0.3);
+        }
+
+        .chat-tools {
+            display: flex;
+            align-items: center;
+            margin-left: 10px;
+        }
+
+        .chat-tool-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--text);
+            border: none;
+            margin-left: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-tool-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Эмодзи панель */
+        .emoji-panel {
+            position: absolute;
+            bottom: 70px;
+            right: 20px;
+            width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 10px;
+            display: none;
+            z-index: 100;
+        }
+
+        .emoji-panel.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .emoji-category {
+            margin-bottom: 10px;
+        }
+
+        .emoji-category h4 {
+            margin-bottom: 5px;
+            color: var(--primary-dark);
+        }
+
+        .emoji-list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .emoji-item {
+            font-size: 1.5rem;
+            padding: 5px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .emoji-item:hover {
+            transform: scale(1.2);
+        }
+
+        /* Страница контактов */
+        .contacts-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .contact-card {
+            background: linear-gradient(to bottom right, white, var(--primary-light));
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .contact-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .contact-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            background-color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .contact-name {
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: var(--primary-dark);
+        }
+
+        .contact-email {
+            color: var(--text-light);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .contact-actions {
+            display: flex;
+            justify-content: center;
+        }
+
+        .contact-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            color: var(--text);
+            border: none;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-btn:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .add-contact {
+            display: flex;
+            margin-top: 20px;
+            margin-bottom: 30px;
+        }
+
+        .add-contact input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid var(--primary);
+            border-radius: 10px 0 0 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .add-contact input:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px rgba(255, 160, 122, 0.3);
+        }
+
+        .add-contact button {
+            padding: 12px 20px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 0 10px 10px 0;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .add-contact button:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+        }
+
+        /* Страница настроек */
+        .settings-container {
+            display: flex;
+            flex-direction: column;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .settings-section {
+            background: linear-gradient(to bottom right, white, var(--primary-light));
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .settings-section:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-section h2 {
+            color: var(--primary-dark);
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
+        .settings-avatar {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .avatar-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .avatar-upload {
+            flex: 1;
+        }
+
+        .avatar-upload input {
+            display: none;
+        }
+
+        .avatar-upload label {
+            display: inline-block;
+            padding: 10px 15px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .avatar-upload label:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+        }
+
+        .settings-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: var(--primary-dark);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid var(--primary);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 2px rgba(255, 160, 122, 0.3);
+        }
+
+        .settings-btn {
+            align-self: flex-end;
+            padding: 12px 25px;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .settings-btn:hover {
+            background: linear-gradient(to right, var(--primary-dark), var(--primary));
+            transform: translateY(-2px);
+        }
+
+        .theme-switcher {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .theme-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .theme-preview {
+            width: 60px;
+            height: 60px;
+            border-radius: 10px;
+            margin-bottom: 5px;
+            border: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .theme-preview.light {
+            background: linear-gradient(135deg, #FFDAB9, #FFE4E1);
+        }
+
+        .theme-preview.dark {
+            background: linear-gradient(135deg, #4A3A2F, #8D6E63);
+        }
+
+        .theme-option input[type="radio"]:checked + .theme-preview {
+            border-color: var(--primary-dark);
+            box-shadow: 0 0 0 3px rgba(255, 160, 122, 0.5);
+        }
+
+        /* Голосовые сообщения */
+        .voice-message {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.5);
+            border-radius: 20px;
+            margin-top: 10px;
+        }
+
+        .voice-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .voice-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            margin-right: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .voice-progress {
+            flex: 1;
+            height: 5px;
+            background-color: #ddd;
+            border-radius: 5px;
+            margin-right: 10px;
+            overflow: hidden;
+        }
+
+        .voice-progress-bar {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-dark));
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        .voice-duration {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        .voice-effects {
+            margin-left: 15px;
+        }
+
+        .voice-effect-btn {
+            padding: 5px 10px;
+            background-color: var(--primary-light);
+            border: none;
+            border-radius: 15px;
+            margin-right: 5px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: var(--transition);
+        }
+
+        .voice-effect-btn:hover, .voice-effect-btn.active {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Видео кружочки */
+        .video-call {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background-color: var(--primary-dark);
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: none;
+        }
+
+        .video-call video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .call-controls {
+            position: absolute;
+            bottom: 10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+        }
+
+        .call-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.8);
+            color: var(--primary-dark);
+            border: none;
+            margin: 0 5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .call-btn.end-call {
+            background-color: #FF5252;
+            color: white;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .chat-container {
+                flex-direction: column;
+                height: auto;
+            }
+            
+            .chat-sidebar, .chat-main {
+                width: 100%;
+            }
+            
+            .chat-sidebar {
+                height: 200px;
+            }
+            
+            nav {
+                flex-direction: column;
+            }
+            
+            .nav-links {
+                margin-top: 15px;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nav-links li {
+                margin: 5px;
+            }
+            
+            .contacts-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Анимации */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        .shake {
+            animation: shake 0.5s;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+    </style>
 </head>
 <body>
-  <header>
-    <img src="https://via.placeholder.com/50" alt="Логотип">
-    <nav>
-      <a href="#login" onclick="showPage('login')">Вход</a>
-      <a href="#contacts" onclick="showPage('contacts')">Контакты</a>
-      <a href="#chats" onclick="showPage('chats')">Чаты</a>
-      <a href="#settings" onclick="showPage('settings')">Настройки</a>
-    </nav>
-  </header>
+    <div class="container">
+        <!-- Навигация (будет скрыта до входа) -->
+        <nav id="main-nav" style="display: none;">
+            <a href="#" class="logo" onclick="showPage('chats')">
+                <img src="https://placekitten.com/100/100" alt="KittyChat Logo" id="logo-img">
+                <span>KittyChat</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#" class="active" onclick="showPage('chats')"><i class="fas fa-comment-dots"></i> Чаты</a></li>
+                <li><a href="#" onclick="showPage('contacts')"><i class="fas fa-address-book"></i> Контакты</a></li>
+                <li><a href="#" onclick="showPage('settings')"><i class="fas fa-cog"></i> Настройки</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Выйти</a></li>
+            </ul>
+        </nav>
 
-  <div id="login" class="container">
-    <h1>Вход</h1>
-    <button onclick="loginWithGoogle()">Войти через Google</button>
-    <button onclick="loginWithEmail()">Войти через Email</button>
-  </div>
+        <!-- Страницы -->
+        <div id="auth-page" class="page active">
+            <div class="auth-container">
+                <h2>Добро пожаловать в KittyChat!</h2>
+                <div class="auth-form">
+                    <input type="email" id="auth-email" placeholder="Ваш email">
+                    <input type="password" id="auth-password" placeholder="Пароль">
+                    <button class="auth-btn" id="login-btn">Войти</button>
+                    <div class="social-auth">
+                        <button class="social-btn google-btn" onclick="signInWithGoogle()">
+                            <i class="fab fa-google"></i> Войти через Google
+                        </button>
+                        <button class="social-btn email-btn" id="signup-btn">
+                            <i class="fas fa-envelope"></i> Зарегистрироваться
+                        </button>
+                    </div>
+                </div>
+                <div class="auth-toggle">
+                    <span id="auth-toggle-text">Нет аккаунта? </span>
+                    <a href="#" id="auth-toggle-link">Зарегистрироваться</a>
+                </div>
+            </div>
+        </div>
 
-  <div id="contacts" class="container hidden">
-    <h1>Контакты</h1>
-    <input type="text" placeholder="Введите имя для добавления контакта">
-    <button>Добавить контакт</button>
-  </div>
+        <div id="chats-page" class="page">
+            <h1>Мои чаты</h1>
+            <div class="chat-container">
+                <div class="chat-sidebar">
+                    <ul class="chat-list" id="chat-list">
+                        <!-- Чаты будут загружены здесь -->
+                    </ul>
+                </div>
+                <div class="chat-main">
+                    <div class="chat-header">
+                        <div class="chat-header-avatar" id="current-chat-avatar">К</div>
+                        <span id="current-chat-name">Выберите чат</span>
+                    </div>
+                    <div class="chat-messages" id="chat-messages">
+                        <!-- Сообщения будут загружены здесь -->
+                    </div>
+                    <div class="chat-input">
+                        <textarea id="message-input" placeholder="Напишите сообщение..." rows="1"></textarea>
+                        <div class="chat-tools">
+                            <button class="chat-tool-btn" onclick="toggleEmojiPanel()">
+                                <i class="far fa-smile"></i>
+                            </button>
+                            <button class="chat-tool-btn" onclick="startVoiceRecording()">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button class="chat-tool-btn" onclick="sendVideoCallRequest()">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="chat-tool-btn" id="send-btn" onclick="sendMessage()">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Панель смайликов -->
+            <div class="emoji-panel" id="emoji-panel">
+                <div class="emoji-category">
+                    <h4>Смайлики</h4>
+                    <div class="emoji-list">
+                        <div class="emoji-item" onclick="insertEmoji('😊')">😊</div>
+                        <div class="emoji-item" onclick="insertEmoji('😂')">😂</div>
+                        <div class="emoji-item" onclick="insertEmoji('😍')">😍</div>
+                        <div class="emoji-item" onclick="insertEmoji('🥰')">🥰</div>
+                        <div class="emoji-item" onclick="insertEmoji('😎')">😎</div>
+                        <div class="emoji-item" onclick="insertEmoji('🤔')">🤔</div>
+                        <div class="emoji-item" onclick="insertEmoji('😢')">😢</div>
+                        <div class="emoji-item" onclick="insertEmoji('😡')">😡</div>
+                        <div class="emoji-item" onclick="insertEmoji('👍')">👍</div>
+                        <div class="emoji-item" onclick="insertEmoji('❤️')">❤️</div>
+                        <div class="emoji-item" onclick="insertEmoji('🎉')">🎉</div>
+                        <div class="emoji-item" onclick="insertEmoji('🐱')">🐱</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Голосовое сообщение (будет показано при записи) -->
+            <div class="voice-message" id="voice-message" style="display: none;">
+                <div class="voice-controls">
+                    <button class="voice-btn" onclick="stopVoiceRecording()">
+                        <i class="fas fa-stop"></i>
+                    </button>
+                    <div class="voice-progress">
+                        <div class="voice-progress-bar" id="voice-progress"></div>
+                    </div>
+                    <span class="voice-duration" id="voice-duration">0:00</span>
+                </div>
+                <div class="voice-effects">
+                    <button class="voice-effect-btn" onclick="setVoiceEffect('none')">Обычный</button>
+                    <button class="voice-effect-btn" onclick="setVoiceEffect('high')">Высокий</button>
+                    <button class="voice-effect-btn" onclick="setVoiceEffect('low')">Низкий</button>
+                    <button class="voice-effect-btn" onclick="setVoiceEffect('robot')">Робот</button>
+                </div>
+            </div>
+            
+            <!-- Видео звонок -->
+            <div class="video-call" id="video-call">
+                <video id="local-video" autoplay muted></video>
+                <div class="call-controls">
+                    <button class="call-btn end-call" onclick="endVideoCall()">
+                        <i class="fas fa-phone-slash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
 
-  <div id="chats" class="container hidden">
-    <h1>Чаты</h1>
-    <div class="chat-message">
-      <img src="https://via.placeholder.com/40" alt="Аватар">
-      <div class="message">Привет! Как дела?</div>
-    </div>
-    <div class="emoji-picker">
-      <span>😊</span>
-      <span>😂</span>
-      <span>❤️</span>
-    </div>
-  </div>
+        <div id="contacts-page" class="page">
+            <h1>Мои контакты</h1>
+            <div class="add-contact">
+                <input type="text" id="new-contact-name" placeholder="Имя контакта">
+                <input type="email" id="new-contact-email" placeholder="Email контакта">
+                <button onclick="addContact()">Добавить</button>
+            </div>
+            <div class="contacts-container" id="contacts-list">
+                <!-- Контакты будут загружены здесь -->
+            </div>
+        </div>
 
-  <div id="settings" class="container hidden">
-    <h1>Настройки</h1>
-    <input type="file" accept="image/*">
-    <input type="text" placeholder="Изменить имя">
-    <input type="password" placeholder="Изменить пароль">
-    <button>Сохранить изменения</button>
-  </div>
-
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyArbTEFbfUrmOJUjYjBMtEEQWdQO_0GAfc",
-      authDomain: "mychatapp-cfba3.firebaseapp.com",
-      projectId: "mychatapp-cfba3",
-      storageBucket: "mychatapp-cfba3.firebasestorage.app",
-      messagingSenderId: "86007940182",
-      appId: "1:86007940182:web:afad11509003ec6122e7f7",
-      measurementId: "G-VZ60QYVJ3X"
-    };
-
-    function showPage(pageId) {
-      document.querySelectorAll('.container').forEach(page => {
-        page.classList.add('hidden');
-      });
-      document.getElementById(pageId).classList.remove('hidden');
-    }
-
-    function loginWithGoogle() {
-      alert('Вход через Google');
-    }
-
-    function loginWithEmail() {
-      alert('Вход через Email');
-    }
-  </script>
-</body>
-</html>
+        <div id="settings-page" class="page">
+            <h1>Настройки</h1>
+            <div class="settings-container">
+                <div class="settings-section">
+                    <h2>Профиль</h2>
+                    <div class="settings-avatar">
+                        <div class="avatar-preview" id="avatar-preview">
+                            <span id="avatar-initials">U</span>
+                            <img id="avatar-image" style="display: none;">
+                        </div>
+                        <div class="avatar-upload">
+                            <input type="file" id="avatar-upload" accept="image/*">
+                            <label for="avatar-upload">Выбрать аватар</label>
+                        </div>
+                    </div>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="settings-name">Имя</label>
+                            <input type="text" id="settings-name" placeholder="Ваше имя">
+                        </div>
+                        <div class="form-group">
+                            <label for="settings-email">Email</label>
+                            <input type="email" id="settings-email" disabled>
+                        </div>
+                        <button class="settings-btn" onclick="updateProfile()">Сохранить</button>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>Безопасность</h2>
+                    <div class="settings-form">
+                        <div class="form-group">
+                            <label for="current-password">Текущий пароль</label>
+                            <input type="password" id="current-password" placeholder="Текущий пароль">
+                        </div>
+                        <div class="form-group">
+                            <label for="new-password">Новый пароль</label>
+                            <input type="password" id="new-password" placeholder="Новый пароль">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirm-password">Подтвердите пароль</label>
+                            <input type="password" id="confirm-password" placeholder="Подтвердите пароль">
+                        </div>
+                        <button class="settings-btn" onclick="changePassword()">Изменить пароль</button>
+                    </div>
+                </div>
+                
+                <div class="settings-section">
+                    <h2>Тема</h2>
+                    <div class="theme-switcher">
+                        <div class="theme-option">
+                            <div class="theme-preview light"></div>
+                            <input type="radio" name="theme" value="light" id="theme-light" checked onchange="changeTheme('light')">
+                            <label for="theme-light">Светлая</label>
+                        </div>
+                        <div class="theme-option">
+                            <div class="theme-preview dark"></div>
+                            <input type="radio" name="theme" value="dark" id="theme-dark" onchange="changeTheme('dark')">
+                            <label for="theme-dark">Темная</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </
