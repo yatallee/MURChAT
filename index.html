@@ -7,193 +7,494 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+            --primary: #FF9A8B;
+            --secondary: #FFD6C0;
+            --light: #FFF4F0;
+            --dark: #5D4037;
+        }
+        
         body {
-            font-family: Arial, sans-serif;
-            max-width: 800px;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #FFEBD6;
         }
+        
+        /* Аутентификация */
         .auth-container {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
         }
-        button {
-            background: #FF9A8B;
+        
+        .auth-container h2 {
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .auth-container img.logo {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-bottom: 15px;
+        }
+        
+        .auth-container input {
+            width: 100%;
+            padding: 12px 15px;
+            margin: 8px 0;
+            border: 2px solid var(--secondary);
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .auth-container input:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(255,154,139,0.3);
+        }
+        
+        .btn {
+            background-color: var(--primary);
             color: white;
             border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
             margin: 5px;
-        }
-        input {
-            padding: 10px;
-            margin: 5px 0;
             width: 100%;
-            border: 1px solid #ddd;
-            border-radius: 5px;
         }
+        
+        .btn:hover {
+            background-color: #FF7B6B;
+            transform: translateY(-2px);
+        }
+        
+        .btn-google {
+            background-color: white;
+            color: #5D4037;
+            border: 2px solid #ddd;
+        }
+        
+        .btn-google:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--dark);
+        }
+        
+        /* Чат */
+        .chat-container {
+            display: none;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            overflow: hidden;
+            height: 70vh;
+        }
+        
+        .chat-header {
+            background: linear-gradient(to right, var(--primary), #FF7B6B);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chat-header .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .chat-header .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: white;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        
+        .chat-messages {
+            padding: 15px;
+            height: calc(100% - 120px);
+            overflow-y: auto;
+            background-color: rgba(255,214,192,0.2);
+        }
+        
+        .message {
+            margin-bottom: 15px;
+            max-width: 70%;
+            padding: 10px 15px;
+            border-radius: 15px;
+            position: relative;
+        }
+        
+        .message-in {
+            background-color: white;
+            border: 1px solid var(--secondary);
+            margin-right: auto;
+        }
+        
+        .message-out {
+            background: linear-gradient(to right, var(--primary), #FF7B6B);
+            color: white;
+            margin-left: auto;
+        }
+        
+        .message-sender {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: rgba(0,0,0,0.5);
+            text-align: right;
+            margin-top: 5px;
+        }
+        
+        .message-out .message-time {
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 15px;
+            border-top: 1px solid #eee;
+            background: white;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 2px solid var(--secondary);
+            border-radius: 25px;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .chat-input input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        
+        .chat-input button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+        }
+        
+        /* Утилиты */
         .hidden {
             display: none;
         }
-        #chat-container {
-            margin-top: 20px;
+        
+        .text-center {
+            text-align: center;
         }
-        #messages {
-            height: 300px;
-            overflow-y: scroll;
-            background: white;
-            padding: 10px;
-            border-radius: 5px;
-            margin-bottom: 10px;
+        
+        .mt-20 {
+            margin-top: 20px;
         }
     </style>
 </head>
 <body>
-    <div id="auth-container" class="auth-container">
-        <h2>Добро пожаловать в KittyChat!</h2>
-        <input type="email" id="email" placeholder="Email">
-        <input type="password" id="password" placeholder="Пароль">
-        <button id="login-btn">Войти</button>
-        <button id="signup-btn">Регистрация</button>
-        <button id="google-btn">Войти через Google</button>
-    </div>
-
-    <div id="app-container" class="hidden">
-        <h2>Мой чат <button id="logout-btn">Выйти</button></h2>
-        <div id="chat-container">
-            <div id="messages"></div>
-            <input type="text" id="message-input" placeholder="Напишите сообщение...">
-            <button id="send-btn">Отправить</button>
+    <div class="container">
+        <!-- Аутентификация -->
+        <div id="auth-container" class="auth-container">
+            <img src="https://placekitten.com/200/200" alt="KittyChat" class="logo">
+            <h2>Добро пожаловать в KittyChat</h2>
+            <input type="email" id="email" placeholder="Ваш email">
+            <input type="password" id="password" placeholder="Пароль">
+            <button id="login-btn" class="btn">Войти</button>
+            <button id="signup-btn" class="btn btn-secondary">Регистрация</button>
+            <button id="google-btn" class="btn btn-google">
+                <i class="fab fa-google"></i> Войти через Google
+            </button>
+        </div>
+        
+        <!-- Чат -->
+        <div id="chat-container" class="chat-container">
+            <div class="chat-header">
+                <div class="user-info">
+                    <div class="avatar" id="user-avatar">U</div>
+                    <span id="username">Пользователь</span>
+                </div>
+                <button id="logout-btn" class="btn btn-secondary" style="padding: 8px 15px;">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            
+            <div class="chat-messages" id="messages">
+                <!-- Сообщения будут здесь -->
+            </div>
+            
+            <div class="chat-input">
+                <input type="text" id="message-input" placeholder="Напишите сообщение...">
+                <button id="send-btn"><i class="fas fa-paper-plane"></i></button>
+            </div>
         </div>
     </div>
 
-<script>
-    // Ваши данные Firebase (замените на свои!)
-    const firebaseConfig = {
-        apiKey: "AIzaSyArbTEFbfUrmOJUjYjBMtEEQWdQO_0GAfc",
-        authDomain: "mychatapp-cfba3.firebaseapp.com",
-        projectId: "mychatapp-cfba3",
-        storageBucket: "mychatapp-cfba3.appspot.com",
-        messagingSenderId: "86007940182",
-        appId: "1:86007940182:web:afad11509003ec6122e7f7",
-        measurementId: "G-VZ60QYVJ3X"
-    };
+    <script>
+        // Ваши данные Firebase (замените на свои!)
+        const firebaseConfig = {
+            apiKey: "AIzaSyArbTEFbfUrmOJUjYjBMtEEQWdQO_0GAfc",
+            authDomain: "mychatapp-cfba3.firebaseapp.com",
+            projectId: "mychatapp-cfba3",
+            storageBucket: "mychatapp-cfba3.appspot.com",
+            messagingSenderId: "86007940182",
+            appId: "1:86007940182:web:afad11509003ec6122e7f7",
+            measurementId: "G-VZ60QYVJ3X"
+        };
 
-    // Инициализация Firebase
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.firestore();
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
 
-    // DOM элементы
-    const authContainer = document.getElementById('auth-container');
-    const appContainer = document.getElementById('app-container');
-    const loginBtn = document.getElementById('login-btn');
-    const signupBtn = document.getElementById('signup-btn');
-    const googleBtn = document.getElementById('google-btn');
-    const logoutBtn = document.getElementById('logout-btn');
-    const sendBtn = document.getElementById('send-btn');
-    const messageInput = document.getElementById('message-input');
-    const messagesDiv = document.getElementById('messages');
+        // DOM элементы
+        const authContainer = document.getElementById('auth-container');
+        const chatContainer = document.getElementById('chat-container');
+        const loginBtn = document.getElementById('login-btn');
+        const signupBtn = document.getElementById('signup-btn');
+        const googleBtn = document.getElementById('google-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const sendBtn = document.getElementById('send-btn');
+        const messageInput = document.getElementById('message-input');
+        const messagesDiv = document.getElementById('messages');
+        const userAvatar = document.getElementById('user-avatar');
+        const usernameSpan = document.getElementById('username');
 
-    // Проверка состояния аутентификации
-    auth.onAuthStateChanged(user => {
-        if (user) {
-            // Пользователь вошел
-            authContainer.classList.add('hidden');
-            appContainer.classList.remove('hidden');
-            loadMessages();
-        } else {
-            // Пользователь вышел
-            authContainer.classList.remove('hidden');
-            appContainer.classList.add('hidden');
+        // Состояние приложения
+        let currentUser = null;
+        let isLoginMode = true;
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', initApp);
+
+        function initApp() {
+            setupEventListeners();
+            checkAuthState();
         }
-    });
 
-    // Вход по email
-    loginBtn.addEventListener('click', () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        auth.signInWithEmailAndPassword(email, password)
-            .catch(error => {
-                alert("Ошибка входа: " + error.message);
+        function setupEventListeners() {
+            // Кнопки аутентификации
+            loginBtn.addEventListener('click', handleAuth);
+            signupBtn.addEventListener('click', () => {
+                isLoginMode = false;
+                handleAuth();
             });
-    });
-
-    // Регистрация
-    signupBtn.addEventListener('click', () => {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        
-        auth.createUserWithEmailAndPassword(email, password)
-            .catch(error => {
-                alert("Ошибка регистрации: " + error.message);
+            googleBtn.addEventListener('click', signInWithGoogle);
+            
+            // Кнопки чата
+            logoutBtn.addEventListener('click', logout);
+            sendBtn.addEventListener('click', sendMessage);
+            messageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') sendMessage();
             });
-    });
+        }
 
-    // Вход через Google
-    googleBtn.addEventListener('click', () => {
-        const provider = new firebase.auth.GoogleAuthProvider();
-        auth.signInWithPopup(provider)
-            .catch(error => {
-                alert("Ошибка Google входа: " + error.message);
+        // Проверка состояния аутентификации
+        function checkAuthState() {
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Пользователь вошел
+                    currentUser = user;
+                    showChat();
+                    updateUserInfo();
+                    loadMessages();
+                } else {
+                    // Пользователь вышел
+                    currentUser = null;
+                    showAuth();
+                }
             });
-    });
+        }
 
-    // Выход
-    logoutBtn.addEventListener('click', () => {
-        auth.signOut();
-    });
+        // Показать чат
+        function showChat() {
+            authContainer.classList.add('hidden');
+            chatContainer.style.display = 'block';
+        }
 
-    // Отправка сообщения
-    sendBtn.addEventListener('click', sendMessage);
-    messageInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') sendMessage();
-    });
+        // Показать аутентификацию
+        function showAuth() {
+            authContainer.classList.remove('hidden');
+            chatContainer.style.display = 'none';
+            isLoginMode = true;
+            loginBtn.textContent = 'Войти';
+            signupBtn.textContent = 'Регистрация';
+        }
 
-    function sendMessage() {
-        const message = messageInput.value.trim();
-        if (message === '') return;
-        
-        const user = auth.currentUser;
-        if (!user) return;
-        
-        db.collection('messages').add({
-            text: message,
-            userId: user.uid,
-            userName: user.displayName || user.email,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        })
-        .then(() => {
-            messageInput.value = '';
-        })
-        .catch(error => {
-            alert("Ошибка отправки: " + error.message);
-        });
-    }
+        // Обновить информацию о пользователе
+        function updateUserInfo() {
+            if (!currentUser) return;
+            
+            // Установить имя
+            const displayName = currentUser.displayName || currentUser.email.split('@')[0];
+            usernameSpan.textContent = displayName;
+            
+            // Установить аватар
+            if (currentUser.photoURL) {
+                userAvatar.style.backgroundImage = `url(${currentUser.photoURL})`;
+                userAvatar.textContent = '';
+            } else {
+                // Инициалы для аватара
+                const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase();
+                userAvatar.textContent = initials.substring(0, 2);
+                userAvatar.style.backgroundImage = '';
+            }
+        }
 
-    // Загрузка сообщений
-    function loadMessages() {
-        db.collection('messages')
-            .orderBy('timestamp')
-            .onSnapshot(snapshot => {
-                messagesDiv.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const message = doc.data();
-                    const messageElement = document.createElement('div');
-                    messageElement.innerHTML = `
-                        <strong>${message.userName}:</strong> ${message.text}
-                    `;
-                    messagesDiv.appendChild(messageElement);
+        // Обработка аутентификации по email
+        function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            if (!email || !password) {
+                alert('Пожалуйста, заполните все поля');
+                return;
+            }
+            
+            if (isLoginMode) {
+                // Вход
+                auth.signInWithEmailAndPassword(email, password)
+                    .catch(error => {
+                        alert("Ошибка входа: " + error.message);
+                    });
+            } else {
+                // Регистрация
+                auth.createUserWithEmailAndPassword(email, password)
+                    .then(() => {
+                        // После регистрации можно обновить профиль
+                        return auth.currentUser.updateProfile({
+                            displayName: email.split('@')[0]
+                        });
+                    })
+                    .catch(error => {
+                        alert("Ошибка регистрации: " + error.message);
+                    });
+            }
+        }
+
+        // Вход через Google
+        function signInWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    alert("Ошибка Google входа: " + error.message);
                 });
-                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Выход
+        function logout() {
+            auth.signOut()
+                .catch(error => {
+                    alert("Ошибка выхода: " + error.message);
+                });
+        }
+
+        // Отправить сообщение
+        function sendMessage() {
+            const messageText = messageInput.value.trim();
+            if (!messageText || !currentUser) return;
+            
+            db.collection('messages').add({
+                text: messageText,
+                userId: currentUser.uid,
+                userName: currentUser.displayName || currentUser.email.split('@')[0],
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                isOutgoing: true
+            })
+            .then(() => {
+                messageInput.value = '';
+            })
+            .catch(error => {
+                alert("Ошибка отправки: " + error.message);
             });
-    }
-</script>
+        }
+
+        // Загрузить сообщения
+        function loadMessages() {
+            db.collection('messages')
+                .orderBy('timestamp')
+                .onSnapshot(snapshot => {
+                    messagesDiv.innerHTML = '';
+                    snapshot.forEach(doc => {
+                        const message = doc.data();
+                        addMessageToChat(message);
+                    });
+                    scrollToBottom();
+                });
+        }
+
+        // Добавить сообщение в чат
+        function addMessageToChat(message) {
+            const messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            
+            if (message.userId === currentUser?.uid) {
+                messageElement.classList.add('message-out');
+            } else {
+                messageElement.classList.add('message-in');
+            }
+            
+            messageElement.innerHTML = `
+                <div class="message-sender">${message.userName}</div>
+                <div class="message-text">${message.text}</div>
+                <div class="message-time">${formatTime(message.timestamp?.toDate())}</div>
+            `;
+            
+            messagesDiv.appendChild(messageElement);
+            scrollToBottom();
+        }
+
+        // Прокрутить вниз
+        function scrollToBottom() {
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        // Форматировать время
+        function formatTime(date) {
+            if (!date) return '';
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+    </script>
 </body>
 </html>
