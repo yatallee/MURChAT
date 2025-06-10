@@ -933,6 +933,248 @@
         }
     </style>
 </head>
+<script>
+    // Инициализация Firebase
+    const firebaseConfig = {
+        apiKey: "AIzaSyArbTEFbfUrmOJUjYjBMtEEQWdQO_0GAfc",
+        authDomain: "mychatapp-cfba3.firebaseapp.com",
+        projectId: "mychatapp-cfba3",
+        storageBucket: "mychatapp-cfba3.appspot.com",
+        messagingSenderId: "86007940182",
+        appId: "1:86007940182:web:afad11509003ec6122e7f7",
+        measurementId: "G-VZ60QYVJ3X"
+    };
+
+    // Инициализируем Firebase
+    firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    // Переменные состояния
+    let currentUser = null;
+    let isLoginMode = true;
+    let currentChatId = null;
+    let voiceRecorder = null;
+    let voiceEffect = 'none';
+    let voiceDuration = 0;
+    let voiceInterval = null;
+    let peerConnection = null;
+
+    // DOM элементы
+    const authPage = document.getElementById('auth-page');
+    const mainNav = document.getElementById('main-nav');
+    const loginBtn = document.getElementById('login-btn');
+    const signupBtn = document.getElementById('signup-btn');
+    const authToggleLink = document.getElementById('auth-toggle-link');
+    const authToggleText = document.getElementById('auth-toggle-text');
+    const authEmail = document.getElementById('auth-email');
+    const authPassword = document.getElementById('auth-password');
+
+    // Инициализация приложения
+    document.addEventListener('DOMContentLoaded', function() {
+        setupEventListeners();
+        checkAuthState();
+    });
+
+    // Настройка обработчиков событий
+    function setupEventListeners() {
+        // Кнопка входа/регистрации
+        loginBtn.addEventListener('click', handleAuth);
+        
+        // Переключение между входом и регистрацией
+        authToggleLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            toggleAuthMode();
+        });
+        
+        // Кнопка регистрации через email
+        signupBtn.addEventListener('click', function() {
+            isLoginMode = false;
+            handleAuth();
+        });
+        
+        // Поле ввода сообщения - обработка нажатия Enter
+        document.getElementById('message-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+        
+        // Загрузка аватара
+        document.getElementById('avatar-upload').addEventListener('change', handleAvatarUpload);
+    }
+
+    // Переключение между режимами входа и регистрации
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        
+        if (isLoginMode) {
+            loginBtn.textContent = 'Войти';
+            signupBtn.style.display = 'inline-block';
+            authToggleText.textContent = 'Нет аккаунта? ';
+            authToggleLink.textContent = 'Зарегистрироваться';
+        } else {
+            loginBtn.textContent = 'Зарегистрироваться';
+            signupBtn.style.display = 'none';
+            authToggleText.textContent = 'Уже есть аккаунт? ';
+            authToggleLink.textContent = 'Войти';
+        }
+    }
+
+    // Обработка аутентификации
+    async function handleAuth() {
+        const email = authEmail.value;
+        const password = authPassword.value;
+        
+        try {
+            if (isLoginMode) {
+                // Вход
+                await auth.signInWithEmailAndPassword(email, password);
+            } else {
+                // Регистрация
+                await auth.createUserWithEmailAndPassword(email, password);
+                // Можно добавить дополнительные действия после регистрации
+            }
+        } catch (error) {
+            alert(`Ошибка: ${error.message}`);
+            console.error(error);
+        }
+    }
+
+    // Вход через Google
+    async function signInWithGoogle() {
+        const provider = new firebase.auth.GoogleAuthProvider();
+        try {
+            await auth.signInWithPopup(provider);
+        } catch (error) {
+            alert(`Ошибка Google аутентификации: ${error.message}`);
+            console.error(error);
+        }
+    }
+
+    // Проверка состояния аутентификации
+    function checkAuthState() {
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                // Пользователь вошел
+                currentUser = user;
+                showAppContent();
+                loadUserData();
+            } else {
+                // Пользователь вышел
+                currentUser = null;
+                showAuthPage();
+            }
+        });
+    }
+
+    // Показать основное содержимое приложения
+    function showAppContent() {
+        authPage.classList.remove('active');
+        mainNav.style.display = 'flex';
+        showPage('chats');
+    }
+
+    // Показать страницу аутентификации
+    function showAuthPage() {
+        authPage.classList.add('active');
+        mainNav.style.display = 'none';
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+    }
+
+    // Выход из системы
+    function logout() {
+        auth.signOut().then(() => {
+            currentUser = null;
+            showAuthPage();
+        }).catch(error => {
+            alert(`Ошибка выхода: ${error.message}`);
+        });
+    }
+
+    // Показать страницу
+    function showPage(pageId) {
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.remove('active');
+        });
+        document.getElementById(`${pageId}-page`).classList.add('active');
+        
+        // Обновляем активную ссылку в навигации
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.classList.remove('active');
+        });
+        document.querySelector(`.nav-links a[onclick="showPage('${pageId}')"]`).classList.add('active');
+        
+        // Загружаем данные страницы
+        switch(pageId) {
+            case 'chats':
+                loadChats();
+                break;
+            case 'contacts':
+                loadContacts();
+                break;
+            case 'settings':
+                loadSettings();
+                break;
+        }
+    }
+
+    // Загрузка данных пользователя
+    function loadUserData() {
+        if (!currentUser) return;
+        
+        // Устанавливаем аватар и имя
+        const avatarPreview = document.getElementById('avatar-preview');
+        const avatarInitials = document.getElementById('avatar-initials');
+        const avatarImage = document.getElementById('avatar-image');
+        
+        // Генерируем инициалы
+        const initials = currentUser.displayName ? 
+            currentUser.displayName.split(' ').map(n => n[0]).join('') : 
+            currentUser.email[0].toUpperCase();
+        avatarInitials.textContent = initials;
+        
+        // Проверяем есть ли фото пользователя
+        if (currentUser.photoURL) {
+            avatarImage.src = currentUser.photoURL;
+            avatarImage.style.display = 'block';
+            avatarInitials.style.display = 'none';
+        }
+        
+        // Заполняем данные в настройках
+        if (document.getElementById('settings-name')) {
+            document.getElementById('settings-name').value = currentUser.displayName || '';
+            document.getElementById('settings-email').value = currentUser.email;
+        }
+        
+        // Устанавливаем логотип с котиком
+        document.getElementById('logo-img').src = currentUser.photoURL || 'https://placekitten.com/100/100';
+    }
+
+    // Остальные функции (loadChats, loadContacts, sendMessage и т.д.) 
+    // будут здесь, но я их опустил для краткости
+
+    // Временные заглушки для нереализованных функций
+    function loadChats() { console.log('Loading chats...'); }
+    function loadContacts() { console.log('Loading contacts...'); }
+    function loadSettings() { console.log('Loading settings...'); }
+    function sendMessage() { alert('Функция отправки сообщения будет реализована позже'); }
+    function toggleEmojiPanel() { alert('Панель смайликов будет реализована позже'); }
+    function startVoiceRecording() { alert('Запись голоса будет реализована позже'); }
+    function stopVoiceRecording() { alert('Остановка записи будет реализована позже'); }
+    function setVoiceEffect(effect) { alert('Эффекты голоса будут реализованы позже'); }
+    function sendVideoCallRequest() { alert('Видеозвонки будут реализованы позже'); }
+    function endVideoCall() { alert('Завершение звонка будет реализовано позже'); }
+    function addContact() { alert('Добавление контакта будет реализовано позже'); }
+    function updateProfile() { alert('Обновление профиля будет реализовано позже'); }
+    function changePassword() { alert('Смена пароля будет реализована позже'); }
+    function changeTheme(theme) { alert('Смена темы будет реализована позже'); }
+    function handleAvatarUpload() { alert('Загрузка аватара будет реализована позже'); }
+</script>
 <body>
     <div class="container">
         <!-- Навигация (будет скрыта до входа) -->
